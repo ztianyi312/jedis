@@ -592,4 +592,35 @@ public class BinaryShardedJedis extends Sharded<Jedis, JedisShardInfo>
 	return j.pfcount(key);
     }
 
+    @Override
+    public Jedis getShard(byte[] key) {
+        return super.getShard(key);
+    }
+
+    @Override
+    public Jedis getShard(String key) {
+        Jedis jedis = super.getShard(key);
+        Jedis src = jedis;
+        
+        jedis.tryConnect();
+
+        if(jedis.isConnected()){
+            //System.out.println("need:"+src+" get:"+jedis);
+            return jedis;
+        }
+        
+        List<Jedis> jedisList = this.getShardList();
+        int index = jedisList.indexOf(jedis);
+        
+        for(int i=1; i<jedisList.size()&&!(jedis.isConnected()); i++){
+            jedis = jedisList.get((i+index)%jedisList.size());
+            try {
+                jedis.tryConnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        //System.out.println("need:"+src+" get:"+jedis);
+        return jedis;
+    }
 }
