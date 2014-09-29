@@ -3556,4 +3556,8 @@ public class Jedis extends BinaryJedis implements JedisCommands,
 	client.pfmerge(destkey, sourcekeys);
 	return client.getStatusCodeReply();
     }
+    
+    public boolean isConnected(){
+        return client.isConnected();
+    }
 }

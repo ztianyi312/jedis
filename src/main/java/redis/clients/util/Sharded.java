@@ -1,5 +1,6 @@
 package redis.clients.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,6 +17,7 @@ public class Sharded<R, S extends ShardInfo<R>> {
     private TreeMap<Long, S> nodes;
     private final Hashing algo;
     private final Map<ShardInfo<R>, R> resources = new LinkedHashMap<ShardInfo<R>, R>();
+    private final List<R> resourceList = new ArrayList<R>();
 
     /**
      * The default pattern used for extracting a key tag. The pattern must have
@@ -66,7 +68,10 @@ public class Sharded<R, S extends ShardInfo<R>> {
 			    this.algo.hash(shardInfo.getName() + "*"
 				    + shardInfo.getWeight() + n), shardInfo);
 		}
-	    resources.put(shardInfo, shardInfo.createResource());
+	    
+	    R r = shardInfo.createResource();
+	    resources.put(shardInfo, r);
+	    resourceList.add(r);
 	}
     }
 
@@ -114,5 +119,9 @@ public class Sharded<R, S extends ShardInfo<R>> {
 
     public Collection<R> getAllShards() {
 	return Collections.unmodifiableCollection(resources.values());
+    }
+    
+    public List<R> getShardList(){
+        return Collections.unmodifiableList(resourceList);
     }
 }
