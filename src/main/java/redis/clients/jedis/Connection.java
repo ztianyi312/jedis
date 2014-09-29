@@ -149,7 +149,6 @@ public class Connection implements Closeable {
 		broken = true;
 		throw new JedisConnectionException(ex);
 	    }
-	    broken = false;
 	}
     }
 
