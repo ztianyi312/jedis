@@ -87,7 +87,7 @@ public class ShardedJedisFailoverTest extends Assert {
     @Test
     public void tryPoolSharding() throws InterruptedException {
         
-        System.out.println(jedisList.size());
+        
         
         final ShardedJedisPool pool = new ShardedJedisPool(
                 new GenericObjectPoolConfig(), shards);
