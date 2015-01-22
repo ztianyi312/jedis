@@ -12,10 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.exceptions.JedisDataException;
@@ -1783,43 +1779,8 @@ public class BinaryJedis implements BasicCommands, BinaryJedisCommands,
 	}
     }
 
-    private volatile boolean trying = false;
-    public static ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    public void tryConnect(){
-        if(!trying) {
-            try {
-                if(client.isBroken()) {
-                    client.disconnect();
-                }
-                client.connect();
-                trying = false;
-            } catch (Exception e) {
-                System.out.println(e);
-                trying = true;
-                executor.schedule(new Reconnector(), 5, TimeUnit.SECONDS);
-            }
-        }
-    }
-    
-    class Reconnector implements Runnable {
-
-        
-        @Override
-        public void run() {
-            try {
-                System.out.println("retry:"+BinaryJedis.this+" "+System.currentTimeMillis());
-                BinaryJedis.this.connect();
-            } catch (Exception e) {
-                System.out.println(e);
-                executor.schedule(new Reconnector(), 5, TimeUnit.SECONDS);
-            }
-        }
-        
-    }
-    
     public void connect() {
 	client.connect();
-	trying = false;
     }
 
     public void disconnect() {
